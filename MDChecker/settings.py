@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-9ra7z0ow$_2jr6d@e*=b13xss#r58aw0#=4(c8)pw@t_&5nmup
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['10.171.94.42', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -126,12 +126,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# DEFAULT_DB_CONNECTION = 'SERVER'
-this_com_ip_address = socket.gethostbyname(socket.gethostname())
-if this_com_ip_address == "10.171.94.42":
-    DEFAULT_DB_CONNECTION = 'SERVER'
-else:
-    DEFAULT_DB_CONNECTION = 'local'
+
 
 
 from django.contrib.messages import constants as message_constants
