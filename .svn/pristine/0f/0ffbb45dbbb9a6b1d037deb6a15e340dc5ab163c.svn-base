@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        * {
+          font-family: 맑은 고딕, 돋움, 굴림;
+          font-size: 12px;
+          box-sizing: border-box;
+          color: rgb(77, 75, 75);
+        }
+        .head {
+          height: 20px;
+          color: #FFFFFF;
+          background-color: #000000;
+          text-align: center;
+          vertical-align: middle;
+          padding: 10px 10px;
+        }
+
+        .data {
+          height: 20px;
+          color: #000000;
+          background-color: #FFFFFF;
+          border-bottom:1px solid #000000;
+          text-align: center;
+          vertical-align: middle;
+        }
+        .button {
+          border: none;
+          color: black;
+          width: 150px;
+          padding: 2px 2px;
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          font-size: 10px;
+          margin: 4px 4px;
+          cursor: pointer;
+          background-color: #FFFF99;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+
+    </script>
+</head>
+<body>
+    <div style="font-size:30px;text-align:left">
+        □ {{ attachment }} : 상세 정보
+    </div>
+
+    <div style="font-size:15px;text-align:right">
+        {{ now }}
+    </div>
+
+    <form id="add_new_code" action="{% url 'MDCheckerPension'%}" method="post" onkeydown="return event.key != 'Enter';">
+        {% csrf_token %}
+        <div style="margin-left: 50px">
+            <table>
+                <tr>
+                    <td class="head" style="text-align:center; width:700px;">현장명p</td>
+                    <td class="head" style="text-align:center; width:200px;">업체명p</td>
+                    <td class="head" style="text-align:center; width:100px;">공제가입번호</td>
+                    <td class="head" style="text-align:center; width:100px;">수정일</td>
+                    <td class="head" style="text-align:center; width:100px;">확정일수</td>
+                    <td class="head" style="text-align:center; width:100px;">인원수</td>
+                    <td class="head" style="text-align:center; width:200px;">send_date</td>
+                    <td class="head" style="text-align:center; width:200px;">현장코드</td>
+                </tr>
+                {% for i in pension %}
+                    <tr>
+                        <td class="data" style="text-align:left">{{i.현장명p}}</td>
+                        <td class="data" style="text-align:center">{{i.업체명p}}</td>
+                        <td class="data" style="text-align:center">{{i.공제가입번호}}</td>
+                        <td class="data" style="text-align:center">{{i.수정일}}</td>
+                        <td class="data" style="text-align:right">{{i.확정일수}}</td>
+                        <td class="data" style="text-align:right">{{i.인원수}}</td>
+                        <td class="data" style="text-align:center">{{i.send_date}}</td>
+                        {% if forloop.counter == 1 %}
+                            <td class="data" style="text-align:center" rowspan="{{pension|length}}">
+                                {% if site_code %}
+                                    {{ site_code }}
+                                {% else %}
+                                    <input id="site_code" type="text" name="site_code" placeholder="Site Code.." oninput="this.value = this.value.toUpperCase()"/>
+                                    <input name="attachment" type="hidden" value="{{attachment}}"/>
+                                    <br><br>
+                                    <input type="submit" value="입력"/>
+                                {% endif %}
+                        </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </form>
+</body>
+</html>

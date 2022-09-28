@@ -1,0 +1,197 @@
+from django.http import Http404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponse, HttpResponseRedirect
+from django.http import JsonResponse
+from django.template import loader
+from django.urls import reverse
+from django.views import generic
+from django.utils import timezone
+
+from datetime import datetime, timedelta
+import json
+import pandas as pd
+
+from MailControler.model_data import DataControl
+from .settings import DEFAULT_DB_CONNECTION
+
+DEFAULT_DB_CONNECTION = 'SERVER'
+
+def view_MDChecker_Main(request):
+    dc = DataControl(DEFAULT_DB_CONNECTION)
+    df = dc.request_mails_summary()
+    data = df.to_json(orient='records')
+    mails = json.loads(data)
+
+    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    context = {
+        'mails': mails,
+        'now': now,
+    }
+    return render(request, 'MDChecker_Main.html', context)
+
+def view_MDCheckerPension(request):
+    dc = DataControl(DEFAULT_DB_CONNECTION)
+    if request.method == 'GET':
+        attachment = request.GET['attachment']
+        df = dc.request_pension_data(attachment)
+        if df is not None:
+            data = df.to_json(orient='records')
+            pension = json.loads(data)
+            site_names = df['현장명p'].to_list()
+            site_name = site_names[0]
+            site_code = dc.request_site_code_by_site_name(site_name)
+            df['현장코드'] = site_code
+        else:
+            pension = None
+            site_code = None
+    else:
+        attachment = request.POST.get('attachment')
+        site_code = request.POST.get('site_code')
+        df = dc.request_pension_data(attachment)
+        data = df.to_json(orient='records')
+        pension = json.loads(data)
+        df['현장코드'] = site_code
+
+        df_data = df[['현장코드', '현장명p']]
+        df_data = df_data.drop_duplicates()
+        df_data = df_data[~df_data['현장명p'].str.contains('◎ 퇴직공제부금 미등록')]
+        data = df_data.values
+        dc.insert_mst_site_add_site_code(data)
+
+    if site_code is not None:
+        df = dc.request_pension_result_data(site_code)
+        if df is None:
+            result = None
+        else:
+            data = df.to_json(orient='records')
+            result = json.loads(data)
+    else:
+        result = None
+
+    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    context = {
+        'attachment': attachment,
+        'site_code': site_code,
+        'pension': pension,
+        'result': result,
+        'now': now,
+    }
+    return render(request, 'MDChecker_Pension.html', context)
+
+def view_MDCheckerSubcon(request):
+    dc = DataControl(DEFAULT_DB_CONNECTION)
+    error_message = False
+
+    if request.method == 'POST':
+        param = request.POST.dict()
+        subcon_name_pension = param['subcon_name_pension']
+        subcon_name_job_report = param['subcon_name_job_report']
+        result = dc.insert_subcon_maching_data_to_db(subcon_name_pension, subcon_name_job_report)
+        if not result:
+            error_message = "등록에 실패하였습니다. 관리자 문의 바랍니다."
+
+    df = dc.call_df_from_db_with_column_name('mdc_mst_subcon')
+    data = df.to_json(orient='records')
+    subcon_list = json.loads(data)
+
+    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    context = {
+        'subcon_list': subcon_list,
+        'now': now,
+        'error_message': error_message,
+    }
+
+    return render(request, 'MDChecker_Subcon.html', context)
+
+def view_MDCheckerSubconAjax(request):
+    dc = DataControl(DEFAULT_DB_CONNECTION)
+    param = json.loads(request.body)
+    subcon_name_pension = param['subcon_name_pension']
+    subcon_name_job_report = param['subcon_name_job_report']
+    result = dc.delete_subcon_maching_data_to_db(subcon_name_pension, subcon_name_job_report)
+    error_message = False
+    if not result:
+        error_message = "삭제에 실패하였습니다. 관리자 문의 바랍니다."
+
+    df = dc.call_df_from_db_with_column_name('mdc_mst_subcon')
+    data = df.to_json(orient='records')
+    subcon_list = json.loads(data)
+
+    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    context = {
+        'subcon_list': subcon_list,
+        'now': now,
+        'error_message': error_message,
+    }
+
+    return JsonResponse(context)
+
+def view_MDCheckerAddress(request):
+    dc = DataControl(DEFAULT_DB_CONNECTION)
+    error_message = False
+
+    df = dc.request_address_mdc_all()
+    data = df.to_json(orient='records')
+    address_list = json.loads(data)
+
+    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    context = {
+        'address_list': address_list,
+        'now': now,
+        'error_message': error_message,
+    }
+
+    return render(request, 'MDChecker_Address.html', context)
+
+def view_MDCheckerAddressAdd(request):
+    dc = DataControl(DEFAULT_DB_CONNECTION)
+    error_message = False
+    if request.method == 'POST':
+        param = request.POST.dict()
+        address_name = param['address_name']
+        address_mail = param['address_mail']
+        address_site_code = param['address_site_code']
+        address_department = param['address_department']
+        address_managing_bonbu = param['address_managing_bonbu']
+        result = dc.insert_address_data_to_db(address_name, address_mail, address_site_code, address_department, address_managing_bonbu)
+        if not result:
+            error_message = "등록에 실패하였습니다. 관리자 문의 바랍니다."
+    else:
+        error_message = "잘못된 접근입니다."
+
+    df = dc.request_address_mdc_all()
+    data = df.to_json(orient='records')
+    address_list = json.loads(data)
+
+    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    context = {
+        'address_list': address_list,
+        'now': now,
+        'error_message': error_message,
+    }
+
+    return render(request, 'MDChecker_Address.html', context)
+
+def view_MDCheckerAddressDel(request):
+    dc = DataControl(DEFAULT_DB_CONNECTION)
+    error_message = False
+    if request.method == 'POST':
+        param = json.loads(request.body)
+        del_address = param['del_address']
+        result = dc.delete_address_data_to_db(del_address)
+        if not result:
+            error_message = "삭제에 실패하였습니다. 관리자 문의 바랍니다."
+    else:
+        error_message = "잘못된 접근입니다."
+
+    context = {
+        'error_message': error_message,
+    }
+
+    return JsonResponse(context)

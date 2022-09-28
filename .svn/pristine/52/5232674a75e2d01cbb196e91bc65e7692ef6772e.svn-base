@@ -1,0 +1,86 @@
+import numpy as np
+import win32com.client
+import re
+import os
+
+from model_data import *
+
+class SummaryExcelData:
+    def __init__(self, dc, siteCode, month=None):
+        self.dc = dc
+        self.siteCode = siteCode
+        if month:
+            self.month = month
+        else:
+            self.month = "ALL"
+
+    def name_output_excel_file(self):
+        # 상위폴더까지 생성 / 폴더 존재시 에러 없음
+        os.makedirs(resultPath, exist_ok=True)
+        # set fileName
+        outputFileName = resultPath + f"\\Reply({self.siteCode}_{self.month})_{sRunTime}.xlsx"
+        if os.path.exists(outputFileName):
+            os.remove(outputFileName)
+        return outputFileName
+
+    def consist_summary_excel_data(self, outputFileName):
+        dc = self.dc
+        df = dc.request_table_result_by_site(self.siteCode, self.month)
+        df['구분'] = df['업체명'].apply(lambda x: '당사' if '현대건설' in x else '협력업체')
+        df = df.sort_values(['구분', '업체명', '확정일수'], ascending=[True, True, False])
+        # consist subTotal
+        # 당사 유무 / 협력업체 유무에 따른 구분자 설정
+        if len(df[df['구분'] == '당사']) and len(df[df['구분'] == '협력업체']):
+            # 당사와 협력업체 모두 있는 정상적인 경우
+            df = df.set_index(['구분', '업체명'])
+            temp = [d for k, d in df.groupby(level=0)]
+            df_hyundai = temp[0]
+            df_subcon = temp[1]
+            df_subcon = df_subcon.append(df_subcon.sum().rename(('협력업체', '소계')))
+            df_result = pd.concat([df_hyundai, df_subcon]).append(df.sum().rename(('현장총계', '')))
+        elif len(df[df['구분'] == '협력업체']):
+            # 협력업체만 있는 경우
+            df = df.set_index(['구분', '업체명'])
+            temp = [d for k, d in df.groupby(level=0)]
+            df_subcon = temp[0]
+            df_subcon = df_subcon.append(df_subcon.sum().rename(('협력업체', '소계')))
+            df_result = df_subcon.append(df.sum().rename(('현장총계', '')))
+        else: 
+            # 당사만 있는 경우
+            df = df.set_index(['구분', '업체명'])
+            temp = [d for k, d in df.groupby(level=0)]
+            df_hyundai = temp[0]
+            df_result = df_hyundai.append(df.sum().rename(('현장총계', '')))
+
+        # add rate column
+        df_result['대비'] = df_result.apply(lambda x: str(round(x.확정일수 / x.출역일수 * 100))+"%" if x.출역일수 and x.확정일수 else "", axis=1)
+        site_name = dc.request_site_name_by_site_code(self.siteCode)
+        df_result['현장명'] = f'[{self.siteCode}]\n{site_name}'
+
+        # define column type
+        df_result = df_result.reset_index()
+        df_result['비고'] = df_result['확정일수'].apply(lambda x: "◎ 퇴직공제부금 미등록" if x == 0 else "")
+        df_result = df_result[['현장명', '구분', '업체명', '출역일수', '소장출역', '직원출역', '확정일수', '대비', '비고']]
+        df_result = df_result.astype({
+            '현장명': str, '구분': str, '업체명': str,
+            '출역일수': int, '소장출역': int, '직원출역': int, '확정일수': float,
+            '대비': str, '비고': str
+        })
+        # create excel_file
+        with pd.ExcelWriter(outputFileName) as writer:
+            if not df_result.empty:
+                df_result.to_excel(writer, sheet_name="비교표")
+
+        logWrite(f'[파일생성 complete  ] : {self.siteCode} - {outputFileName}')
+
+
+
+if __name__ == "__main__":
+    dc = DataControl('local')
+    # site_codes = ['GJ21', 'I73C', 'J692']
+    # se = SummaryExcelData(dc, 'GJ21', '2022-05')
+    # se = SummaryExcelData(dc, 'I73C', '2022-05')
+    se = SummaryExcelData(dc, 'GJ26', '2022-06')
+    outputFileName = se.name_output_excel_file()
+    se.consist_summary_excel_data(outputFileName)
+    os.startfile(outputFileName)

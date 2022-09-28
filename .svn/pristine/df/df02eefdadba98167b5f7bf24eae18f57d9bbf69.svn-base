@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>퇴직공제부금 관리자 페이지</title>
+    <style>
+        * {
+          font-family: 맑은 고딕, 돋움, 굴림;
+          font-size: 12px;
+          box-sizing: border-box;
+          color: rgb(77, 75, 75);
+        }
+        .head {
+          height: 20px;
+          color: #FFFFFF;
+          background-color: #000000;
+          text-align: center;
+          vertical-align: middle;
+          padding: 10px 10px;
+        }
+
+        .data {
+          height: 20px;
+          color: #000000;
+          background-color: #FFFFFF;
+          border-bottom:1px solid #000000;
+          text-align: center;
+          vertical-align: middle;
+        }
+        .button {
+          border: none;
+          color: black;
+          width: 150px;
+          padding: 2px 2px;
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          /* font-size: 10px; */
+          margin: 4px 4px;
+          cursor: pointer;
+          background-color: #FFFF99;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+        function callPension(attachment) {
+            attachment = encodeURIComponent(attachment)
+            url = `{% url 'MDCheckerPension'%}?attachment=${attachment}`
+            window.open(url)
+        }
+    </script>
+</head>
+<body>
+<div style="font-size:30px;text-align:left;margin-top:30px;">
+    ■ 퇴직공제부금 메일 수신 현황
+    <div style="float: right;">
+        <br>
+        <input type="button" value="::: 메일링 리스트 관리 :::"
+               onclick="window.open({% url 'MDCheckerAddress' %},'메일링 리스트 관리', 'top=100,left=100,width=1050,height=600')" />
+    </div>
+</div>
+<div style="font-size:15px;text-align:right">
+    {{ now }} 현재
+</div>
+<div style="margin-left: 50px">
+    <table>
+        <tr>
+            <td class="head" style="width:400px;" align="center">구분</td>
+            <td class="head" style="width:300px;" align="center">제목</td>
+            <td class="head" style="width:220px;" align="center">보낸사람</td>
+            <td class="head" style="width:300px;" align="center">보낸날짜</td>
+            <td class="head" style="width:200px;" align="center">첨부파일</td>
+            <td class="head" style="width:200px;" align="center">처리현황</td>
+            <td class="head" style="width:200px;" align="center">처리일</td>
+            <td class="head" style="width:100px;" align="center">현장코드</td>
+        </tr>
+        {% for i in mails %}
+            <tr>
+                <td class="data" style="text-align:left">{{i.mail}}</td>
+                <td class="data" style="text-align:left">{{i.제목}}</td>
+                <td class="data" style="text-align:left">{{i.보낸사람}}</td>
+                <td class="data" style="text-align:left">{{i.보낸날짜}}</td>
+                <td class="data" style="text-align:left">{{i.첨부파일|truncatechars:16}}</td>
+                <td class="data" style="text-align:center">
+                    {% if i.처리현황 == '메일송부완료' %}
+                        <input style="background-color:#CFFF70" class="button" type="button" onclick="callPension('{{i.첨부파일}}')" id="{{i.첨부파일}}" value="{{i.처리현황}}"/>
+                    {% elif i.처리현황 == '담당자확인중' %}
+                        <input style="background-color:#F36970" class="button" type="button" onclick="callPension('{{i.첨부파일}}')" id="{{i.첨부파일}}" value="{{i.처리현황}}"/>
+                    {% else %}
+                        <input style="background-color:#FFFFFF" class="button" type="button" onclick="callPension('{{i.첨부파일}}')" id="{{i.첨부파일}}" value="{{i.처리현황}}"/>
+                    {% endif %}
+                </td>
+                <td class="data" style="text-align:left">{{i.처리일}}</td>
+                <td class="data" style="text-align:center">{{i.현장코드}}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+from django.http import Http404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponse, HttpResponseRedirect
+from django.http import JsonResponse
+from django.template import loader
+from django.urls import reverse
+from django.views import generic
+from django.utils import timezone
+
+from datetime import datetime
+import json
+import pandas as pd
+
+# 111111
+
+def view_MDChecker_Main(request):
+    start = "it's new start"
+    context = {
+        'start': start,
+    }
+    return render(request, 'MDChecker_Main.html', context)
