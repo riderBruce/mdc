@@ -48,15 +48,9 @@ class DataControl:
         self.sRunType = DB
         # DB 서버 정보 ###########################
         if self.sRunType == 'SERVER':
-            self.db_host = '10.171.94.66'
-            self.db_name = 'JobReport'
-            self.db_user = 'postgres'
-            self.db_pwd = 'nam1004'
+
         else:
-            self.db_host = 'localhost'
-            self.db_name = 'JobReport'
-            self.db_user = 'postgres'
-            self.db_pwd = 'nam1004'
+
 
         self.connStr = f'postgresql://{self.db_user}:{self.db_pwd}@{self.db_host}:5432/{self.db_name}'
 
