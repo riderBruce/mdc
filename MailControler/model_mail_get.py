@@ -9,9 +9,9 @@ from model_data import *
 class EmailAttachDownloader:
 
     def __init__(self, dc):
-        self.pop3_server = '10.18.1.69'
-        self.pop3_user = 'ecard@hdec.co.kr'
-        self.pop3_passwd = '@H6zM_YESR004'
+        self.pop3_server =
+        self.pop3_user =
+        self.pop3_passwd =
         self.p = poplib.POP3(self.pop3_server)
         self.dc = dc
 
