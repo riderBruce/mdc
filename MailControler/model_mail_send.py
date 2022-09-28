@@ -13,10 +13,10 @@ class MailSender:
             self.siteCode = siteCode
         else:
             self.siteCode = "----"
-        self.smtp_server = '10.18.1.69'  # 메일서버
-        self.smtp_user = 'H147M_YESR005'  # ID
-        self.smtp_passwd = '@H6zM_YESR005'  # 비밀번호
-        self.smtp_sender = 'rmteam5@hdec.co.kr'  # 이메일
+        self.smtp_server =  # 메일서버
+        self.smtp_user =  # ID
+        self.smtp_passwd =   # 비밀번호
+        self.smtp_sender =   # 이메일
 
     def send_mail_smtp(self, sSubject, sMailBody, mailtoList, mailtoccList, mailtoBccList, outputFileName=None):
         try:
