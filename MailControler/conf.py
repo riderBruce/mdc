@@ -2,9 +2,9 @@ config = {
     'SERVER': {'DB': 'SERVER',
                'MAIL': 'ALL'},
     'ADMIN': {'DB': 'SERVER',
-              'MAIL': 'dahee.choi@hdec.co.kr'},
+              'MAIL': ''},
     'DEV': {'DB': 'SERVER',
-            'MAIL': 'kafka@hdec.co.kr'},
+            'MAIL': ''},
     'DEV_LOCAL': {'DB': 'LOCAL',
-                 'MAIL': 'kafka@hdec.co.kr'},
+                 'MAIL': ''},
 }
