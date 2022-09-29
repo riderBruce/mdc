@@ -127,31 +127,7 @@ class ExcelDataConverter:
 
 
 if __name__ == "__main__":
-    # Test Module ----------- ilbo file
-    fileName = r"D:\Project_Data\webMDChecker\Files_MD\2022-07\근로월표시_6월_SW드림타운 workDayUnDecisionList (3).xls"
-    dc = DataControl('local')
-    ec = ExcelDataConverter(fileName)
-    sheetName, usedRangeData = ec.read_excel_usedRangeData(1)
-    # a = ec.is_pension_file(usedRangeData)
-    send_date = '2022-07-01'
-    df, target_month = ec.convert_pension_data_for_DB(sheetName, send_date, usedRangeData)
-    df = df
-    dc.drop_duplicates_by_date_from_raw(df['공제가입번호'].unique(), send_date)
-    dc.insert_data_to_db(df, 'mdc_raw_md')
-    dc.conn.commit()
 
-    # dc = DataControl()
-    # dc.insert_data_to_db(df, 'mdc_raw_md')
-    # dc.update_mail_sheetName(fileName, sheetName)
-    # logWrite(f'[첨부로그 - Save    ] : {fileName} /// {sheetName}')
-    # dc.conn.commit()
-    # df_mst_site = dc.call_df_from_db_with_column_name('mdc_mst_site')
-    # df = pd.merge(df, df_mst_site, how='left', on='현장명p')
-    # siteCode = df.현장코드.unique()[0]
-    # outputFileName = r"D:\Project_Data\JobReport\Files_PLNT\data111.xlsx"
-    # with pd.ExcelWriter(outputFileName) as writer:
-    #     if len(df) > 0:
-    #         df.to_excel(writer, sheet_name="data")
 
 
 
