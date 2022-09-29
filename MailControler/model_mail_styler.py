@@ -41,11 +41,11 @@ class MailFormMaker:
                 <tbody>
         """
         for index, row in df.iterrows():
-            siteCode = row[0] # SM06
-            subcon = row[1] # Daeah / Steel Structure
-            mailSender = row[2] # Yoonjin Yoon <1300715@hdec.co.kr>
+            siteCode = row[0] # 
+            subcon = row[1] # 
+            mailSender = row[2] # 
             mailSender = str(mailSender).replace('<', '[').replace('>', ']')
-            reportDate = row[3] # 2022-03-03
+            reportDate = row[3] # 
             sendDate = row[4] # sendDate_attach = sendDate.strftime('%Y-%m-%d %H:%M:%S %z')
             try:
                 sTimezone = dc.request_local_timezone(siteCode)
@@ -115,20 +115,7 @@ class MailFormMaker:
         <p>
         """
         # body
-        sMailBody += f"본 메일은 당사 전자작업일보(HPMS, HCM, Easy작업일보)의 출역정보와 건설근로자공제회 전자카드근무관리시스템의 근로내역 비교표를 제공하기 위해 발송되는 메일입니다.<br><br>"
-        sMailBody += f"첨부 파일 참조하시기 바랍니다.<br><br>"
-        sMailBody += f"⊙ 현장코드 : {self.siteCode} <br>"
-        sMailBody += f"⊙ 현 장 명 : {self.bms_site_name} <br>"
-        # sMailBody += f"⊙ Date : {dateFrom} ~ {dateTo} <br><br>"
-        # table
-        if htmlTable is not None:
-            sMailBody += htmlTable
-        # tail
-        sMailBody += "<br><br><br>"
-        sMailBody += "※ Contact Point <br>"
-        sMailBody += "&nbsp;&nbsp;&nbsp; 제도 관련 &nbsp;&nbsp;: 안전사업지원실 사업관리팀 (02-746-1940)<br>"
-        sMailBody += "&nbsp;&nbsp;&nbsp; 데이터 관련 : 예산관리실 RM팀 (02-746-3643, 1339, 2262, 2782) <br>"
-        sMailBody += """
+
         </p>
         </body>
         </html>
@@ -137,15 +124,3 @@ class MailFormMaker:
 
 
 if __name__ == '__main__':
-    dc = DataControl()
-    mailFormMaker = MailFormMaker(dc)
-    sSubject = mailFormMaker.write_subject()
-    htmlTable = mailFormMaker.consist_table_in_mail_body()
-    sMailBody = mailFormMaker.write_html_mail_body(htmlTable)
-    import os
-    filename = 'mailbody.html'
-    filename = os.path.join(savePath, filename)
-    os.makedirs(savePath, exist_ok=True)
-    with open(filename, 'w') as html_file:
-        html_file.write(sMailBody)
-    os.startfile(filename)
