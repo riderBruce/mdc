@@ -120,9 +120,3 @@ class PensionDataConverter:
 
 
 if __name__ == '__main__':
-    # db controller
-    dc = DataControl('local')
-    file_name = '인천 검단 물류센터 신축공사'
-    pc = PensionDataConverter(dc, file_name, '2022-06')
-    siteCode, df = pc.pension_data_converter()
-    df=df
