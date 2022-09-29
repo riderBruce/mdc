@@ -148,13 +148,3 @@ class SummaryExcelData:
 
 
 
-if __name__ == "__main__":
-    dc = DataControl('SERVER')
-    # site_codes = ['GJ21', 'I73C', 'J692']
-    # se = SummaryExcelData(dc, 'GJ21', '2022-05')
-    # se = SummaryExcelData(dc, 'I73C', '2022-06') # 당사만 있음
-    se = SummaryExcelData(dc, 'GJ26', '2022-07') # 둘다 있음
-    # se = SummaryExcelData(dc, 'GJ57', '2022-06') # 협력업체만 있음
-    outputFileName = se.name_output_excel_file()
-    se.excel_writer(outputFileName)
-    os.startfile(outputFileName)
