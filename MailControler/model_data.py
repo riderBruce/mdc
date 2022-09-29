@@ -52,7 +52,6 @@ class DataControl:
         else:
 
 
-        self.connStr = f'postgresql://{self.db_user}:{self.db_pwd}@{self.db_host}:5432/{self.db_name}'
 
         conn = pg2.connect(
             'host={0} dbname={1} user={2} password={3}'.format(self.db_host, self.db_name, self.db_user,
@@ -244,10 +243,7 @@ class DataControl:
             return
         # sSql = f"delete from mdc_address where email = '{sender_email}';"
         # cur.execute(sSql)
-        sSql = f"delete from mdc_address where 메일주소 = 'ecard@hdec.co.kr';"
-        curs.execute(sSql)
-        sSql = f"delete from mdc_address where 메일주소 = 'rmteam5@hdec.co.kr';"
-        curs.execute(sSql)
+
 
         sSql = f"insert into mdc_address(이름, 메일주소, 현장코드) values('{sender_name}', '{sender_email}', '{siteCode}');"
         try:
@@ -710,12 +706,4 @@ class DataControl:
 
 
 if __name__ == '__main__':
-    dc = DataControl('local')
-    site_code = "J731"
-    bms_site_name = dc.request_site_name_by_site_code(site_code)
-    bms_site_name = bms_site_name
 
-    # outputFileName = r"D:\Project_Python\webMDChecker\MDChecker\data\220701\data_J731_2.xlsx"
-    # with pd.ExcelWriter(outputFileName) as writer:
-    #     if len(df) > 0:
-    #         df.to_excel(writer, sheet_name="data")
