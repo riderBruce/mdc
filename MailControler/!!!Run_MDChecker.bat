@@ -1,1 +1,0 @@
-D:\Project_Python\webMDChecker\venv\Scripts\python.exe D:\Project_Python\webMDChecker\MDChecker\MailControler\MDChecker_Controler.py SERVER
